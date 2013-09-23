@@ -30,3 +30,23 @@
 .menu li.selected a {
   background: #f1faff;
 }
+
+.menu .submenu {
+    position: relative;
+}
+
+.menu .submenu:after {
+    content: '';
+    position: absolute;
+    right: 5px;
+    top: 11px;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid black;
+}
+
+.hidden {
+    display: none;
+}

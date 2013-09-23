@@ -12,29 +12,56 @@
       var menu = require('menu');
   
       menu = menu();
+        
+        var tree = {
+            'First Item': 'asdf',
+            'Second Item': 'fdsa',
+            'First Header': {
+                'value': 'hasVALUE',
+                'First first subitem': 'sub1',
+                'First second subitem': 'sub2',
+            },
+            'Second Header': {
+                'Second first subitem': 'suba',
+                'Second second subitem': 'subb',
+                'Another tier': {
+                    'tier item 1': 't1',
+                    'tier item 2': 't2'
+                }
+            }
+        };
+        
+        menu.add(tree);
   
-      menu
+      /*menu
       .add('add-item', 'Add <em>item</em>')
       .add('Edit item', function(){ console.log('edit'); })
       .add('Remove item', function(){ console.log('remove'); })
       .add('Remove "Add item"', function(){
         menu.remove('add-item');
         menu.remove('Remove "Add item"');
-      });
+      });*/
 
       menu.on('select', function(item){
-        console.log('selected "%s"', item);
+        console.log('selected: ', item);
+      });
+        
+      menu.on('hover', function (item) {
+         console.log('hover "%s"', item); 
       });
 
       menu.on('Add item', function(){
         console.log('added an item');
       });
 
-      oncontextmenu = function(e){
+      onclick = function(e){
         e.preventDefault();
         menu.moveTo(e.pageX, e.pageY);
         menu.show();
       };
+        
+      menu.hide();
+      document.body.appendChild(menu.el);
     </script>
   </body>
 </html>

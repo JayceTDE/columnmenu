@@ -7,8 +7,13 @@
     "ui"
   ],
   "dependencies": {
+    "component/query": "*",
     "component/emitter": "*",
-    "component/jquery": "*"
+    "component/classes": "*",
+    "component/event": "*",
+    "JayceTDE/mouse-inout": "*",
+    "yields/prevent": "*",
+    "anthonyshort/offset": "*"
   },
   "styles": [
     "menu.css"

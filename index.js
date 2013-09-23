@@ -1,10 +1,19 @@
-
 /**
  * Module dependencies.
  */
 
 var Emitter = require('emitter')
-  , o = require('jquery');
+  , query = require('query')
+  , classes = require('classes')
+  , events = require('event')
+  , mouseInOut = require('mouse-inout')
+  , prevent = require('prevent')
+  , offset = require('offset')
+;
+
+//Events
+//classes
+//mouseinout
 
 /**
  * Expose `Menu`.
@@ -27,14 +36,20 @@ module.exports = Menu;
  */
 
 function Menu() {
-  if (!(this instanceof Menu)) return new Menu;
-  Emitter.call(this);
-  this.items = {};
-  this.el = o('<ul class=menu>').hide().appendTo('body');
-  this.el.hover(this.deselect.bind(this));
-  o('html').click(this.hide.bind(this));
-  this.on('show', this.bindKeyboardEvents.bind(this));
-  this.on('hide', this.unbindKeyboardEvents.bind(this));
+    var self = this;
+    if (!(self instanceof Menu)) return new Menu;
+    Emitter.call(self);
+    self._current = null;
+    self.items = {};
+    self.el = document.createElement('ul');
+    self.el.className = 'menu';
+    mouseInOut.bind(self.el, 'mouseenter', self.deselect.bind(self));
+    mouseInOut.bind(self.el, 'mouseleave', function () {
+        clearTimeout(self._hoverTimer);
+    });
+    events.bind(document.documentElement, 'click', self.hide.bind(self));
+    //this.on('show', this.bindKeyboardEvents.bind(this));
+    //this.on('hide', this.unbindKeyboardEvents.bind(this));
 }
 
 /**
@@ -49,8 +64,9 @@ Menu.prototype = new Emitter;
  * @api private
  */
 
-Menu.prototype.deselect = function(){
-  this.el.find('.selected').removeClass('selected');
+Menu.prototype.deselect = function () {
+    var selected = query('.selected', this.el);
+    selected && classes(selected).remove('selected');
 };
 
 /**
@@ -59,10 +75,10 @@ Menu.prototype.deselect = function(){
  * @api private
  */
 
-Menu.prototype.bindKeyboardEvents = function(){
-  o(document).bind('keydown.menu', this.onkeydown.bind(this));
-  return this;
-};
+//Menu.prototype.bindKeyboardEvents = function(){
+//  o(document).bind('keydown.menu', this.onkeydown.bind(this));
+//  return this;
+//};
 
 /**
  * Unbind keyboard events.
@@ -70,10 +86,10 @@ Menu.prototype.bindKeyboardEvents = function(){
  * @api private
  */
 
-Menu.prototype.unbindKeyboardEvents = function(){
-  o(document).unbind('keydown.menu');
-  return this;
-};
+//Menu.prototype.unbindKeyboardEvents = function(){
+//  o(document).unbind('keydown.menu');
+//  return this;
+//};
 
 /**
  * Handle keydown events.
@@ -81,6 +97,7 @@ Menu.prototype.unbindKeyboardEvents = function(){
  * @api private
  */
 
+/*
 Menu.prototype.onkeydown = function(e){
   switch (e.keyCode) {
     // esc
@@ -99,6 +116,7 @@ Menu.prototype.onkeydown = function(e){
       break;
   }
 };
+*/
 
 /**
  * Focus on the next menu item in `direction`.
@@ -107,7 +125,7 @@ Menu.prototype.onkeydown = function(e){
  * @api public
  */
 
-Menu.prototype.move = function(direction){
+/*Menu.prototype.move = function(direction){
   var prev = this.el.find('.selected').eq(0);
 
   var next = prev.length
@@ -119,7 +137,7 @@ Menu.prototype.move = function(direction){
     next.addClass('selected');
     next.find('a').focus();
   }
-};
+};*/
 
 /**
  * Add menu item with the given `text` and optional callback `fn`.
@@ -135,33 +153,80 @@ Menu.prototype.move = function(direction){
  * @api public
  */
 
-Menu.prototype.add = function(text, fn){
-  var slug;
-
-  // slug, text, [fn]
-  if ('string' == typeof fn) {
-    slug = text;
-    text = fn;
-    fn = arguments[2];
-  } else {
+Menu.prototype.add = function (text, value) {
+    
+    var self = this
+      , slug
+    ;
+    
+    if (typeof text === 'object') {
+        for (var prop in text) {
+            text.hasOwnProperty(prop) && self.add(prop, text[prop]);
+        }
+        return;
+    }
+    
     slug = createSlug(text);
-  }
-
-  var self = this
-    , el = o('<li><a href="#">' + text + '</a></li>')
-    .addClass('menu-item-' + slug)
-    .appendTo(this.el)
-    .click(function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      self.hide();
-      self.emit('select', slug);
-      self.emit(slug);
-      fn && fn();
+    
+    if (typeof value === 'object') {
+        // Create submenu
+        var sub = new Menu()
+        sub.value = value.value;
+        delete value.value;
+        sub.add(value);
+        sub._parent = self;
+        sub.hide();
+        document.body.appendChild(sub.el);
+        value = sub;
+    }
+    
+    var el = document.createElement('li');
+    
+    el.innerHTML = '<a href="#">' + text + '</a>';
+    el.className = 'menu-item-' + slug;
+    el.className += value instanceof Menu ? ' submenu' : '';
+    this.el.appendChild(el);
+    events.bind(el, 'click', function (e) {
+        
+        prevent(e);
+        e.stopPropagation();
+        
+        clearTimeout(self._hoverTimer);
+        
+        self._current && self._current.hide();
+        
+        if (value instanceof Menu && typeof value.value === 'undefined') {
+            var o = offset(el);
+            value.moveTo(o.left + el.offsetWidth, o.top);
+            value.show();
+            self._current = value;
+        } else {
+            self.select(self.items[slug]);
+        }
+        
+    });
+    
+    mouseInOut.bind(el, 'mouseenter', function (e) {
+        
+        clearTimeout(self._hoverTimer);
+        
+        self._hoverTimer = setTimeout(function () {
+            
+            self._current && self._current.hide();
+            
+            if (value instanceof Menu) {
+                var o = offset(el);
+                value.moveTo(o.left + el.offsetWidth, o.top);
+                value.show();
+                self._current = value;
+            }
+            
+        }, 500);
+        
     });
 
-  this.items[slug] = el;
-  return this;
+    self.items[slug] = { slug: slug, text: text, el: el, value: value };
+    return self;
 };
 
 /**
@@ -172,15 +237,20 @@ Menu.prototype.add = function(text, fn){
  * @api public
  */
 
-Menu.prototype.remove = function(slug){
-  var item = this.items[slug] || this.items[createSlug(slug)];
-  if (!item) throw new Error('no menu item named "' + slug + '"');
-  this.emit('remove', slug);
-  item.remove();
-  delete this.items[slug];
-  delete this.items[createSlug(slug)];
-  return this;
-};
+/*Menu.prototype.remove = function (slug) {
+    slug = createSlug(slug);
+    var item = this.items[slug];
+    if (!item) throw new Error('no menu item named "' + slug + '"');
+    this.emit('remove', slug);
+    if (item._subs) {
+        for (var i = 0, l = item._subs.length; i < l; i += 1) {
+            item._subs[i].el.parentNode.removeChild(item._subs[i].el);
+        }
+    }
+    item.el.parentNode.removeChild(item.el);
+    delete this.items[slug];
+    return this;
+};*/
 
 /**
  * Check if this menu has an item with the given `slug`.
@@ -190,8 +260,8 @@ Menu.prototype.remove = function(slug){
  * @api public
  */
 
-Menu.prototype.has = function(slug){
-  return !! (this.items[slug] || this.items[createSlug(slug)]);
+Menu.prototype.has = function (slug) {
+    return !!this.items[createSlug(slug)];
 };
 
 /**
@@ -203,12 +273,10 @@ Menu.prototype.has = function(slug){
  * @api public
  */
 
-Menu.prototype.moveTo = function(x, y){
-  this.el.css({
-    top: y,
-    left: x
-  });
-  return this;
+Menu.prototype.moveTo = function (x, y) {
+    this.el.style.top = y + 'px';
+    this.el.style.left = x + 'px';
+    return this;
 };
 
 /**
@@ -218,10 +286,10 @@ Menu.prototype.moveTo = function(x, y){
  * @api public
  */
 
-Menu.prototype.show = function(){
-  this.emit('show');
-  this.el.show();
-  return this;
+Menu.prototype.show = function () {
+    this.emit('show');
+    classes(this.el).remove('hidden');
+    return this;
 };
 
 /**
@@ -231,10 +299,16 @@ Menu.prototype.show = function(){
  * @api public
  */
 
-Menu.prototype.hide = function(){
-  this.emit('hide');
-  this.el.hide();
-  return this;
+Menu.prototype.hide = function () {
+    this._current && this._current.hide();
+    this.emit('hide');
+    classes(this.el).add('hidden');
+    return this;
+};
+
+Menu.prototype.select = function (item) {
+    this.hide();
+    return this._parent ? this._parent.select(item) : this.emit('select', item);
 };
 
 /**
@@ -246,8 +320,8 @@ Menu.prototype.hide = function(){
  */
 
 function createSlug(str) {
-  return String(str)
-    .toLowerCase()
-    .replace(/ +/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
+    return String(str)
+        .toLowerCase()
+        .replace(/ +/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
 }
