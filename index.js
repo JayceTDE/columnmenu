@@ -108,8 +108,10 @@ Menu.prototype.add = function (obj) {
         
         self._current = null;
         
-        if (sub) {
-            if (obj.value) return self.select(obj);
+        self.select(obj);
+        
+        /*if (sub) {
+            if (obj._id) return self.select(obj);
             o = offset(el);
             sub.moveTo(o.left + el.offsetWidth, o.top - 1);
             
@@ -117,7 +119,7 @@ Menu.prototype.add = function (obj) {
             self._current = sub;
         } else {
             self.select(obj);
-        }
+        }*/
     });
     
     mouseInOut.bind(el, 'mouseenter', function (e) {
