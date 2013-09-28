@@ -17,13 +17,13 @@
   display: block;
   padding: 5px 30px 5px 12px;
   text-decoration: none;
-  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
   color: #2e2e2e;
   outline: none;
 }
 
-.menu li:first-child a {
-  border-top: none;
+.menu li:last-child a {
+  border-bottom: none;
 }
 
 .menu li a:hover,
@@ -31,11 +31,11 @@
   background: #f1faff;
 }
 
-.menu .submenu {
+.menu .menu-parent {
     position: relative;
 }
 
-.menu .submenu:after {
+.menu .menu-parent:after {
     content: '';
     position: absolute;
     right: 5px;

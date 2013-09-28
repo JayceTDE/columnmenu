@@ -6,62 +6,71 @@
     <link rel="stylesheet" href="../build/build.css" />
   </head>
   <body>
-    <title>Menu</title>
+    <button type="button">Menu</button>
     <script src="../build/build.js"></script>
     <script>
-      var menu = require('menu');
-  
-      menu = menu();
+    
+        var Menu = require('menu')
+          , offset = require('anthonyshort-offset')
+          , menuBtn = document.querySelector('button')
+          , menu
+        ;
         
-        var tree = {
-            'First Item': 'asdf',
-            'Second Item': 'fdsa',
-            'First Header': {
-                'value': 'hasVALUE',
-                'First first subitem': 'sub1',
-                'First second subitem': 'sub2',
-            },
-            'Second Header': {
-                'Second first subitem': 'suba',
-                'Second second subitem': 'subb',
-                'Another tier': {
-                    'tier item 1': 't1',
-                    'tier item 2': 't2'
-                }
-            }
+        menu = Menu();
+        
+        var tree = [
+            { name: 'Cooking' 
+            , value: '#cooking'
+            , children: [
+                { name: 'Cakes', value: '#cooking-cakes' },
+                { name: 'Cookies', value: '#cooking-cookies' }
+            ]},
+            { name: 'Gaming'
+            , value: '#gaming'
+            , children: [
+                { name: 'First Person Shooter', value: '#gaming-fps' },
+                { name: 'Real Time Strategy', value: '#gaming-rts' },
+                { name: 'MMORPG', value: '#gaming-mmorpg' }
+            ]},
+            { name: 'Outdoor Sports'
+            , value: '#outdoorsports'
+            , children: [
+                { name: 'Water Sports'
+                , value: '#outdoor-water'
+                , children: [
+                    { name: 'Boating', value: '#outdoor-water-boating' },
+                    { name: 'Snorkeling', value: '#outdoor-water-snorkeling' }
+                ]},
+                { name: 'Biking'
+                , value: '#outdoor-biking'
+                , children: [
+                    { name: 'Mountain Biking'
+                    , value: '#outdoor-biking-mountain'
+                    , children: [
+                        { name: 'Downhill Mountain Biking', value: '#outdoor-biking-mountain-downhill' },
+                        { name: 'Cross Country Mountain Biking', value: '#outdoor-biking-mountain-crosscountry' }
+                    ]},
+                    { name: 'Cycling', value: '#outdoor-biking-cycling' }
+                ]}
+            ]}
+        ];
+        
+        menu.data(tree);
+        
+        menu.on('select', function(item){
+            console.log('selected: ', item);
+        });
+        
+        menuBtn.onclick = function (e){
+            e.stopPropagation();
+            e.preventDefault();
+            menu.show();
         };
         
-        menu.add(tree);
-  
-      /*menu
-      .add('add-item', 'Add <em>item</em>')
-      .add('Edit item', function(){ console.log('edit'); })
-      .add('Remove item', function(){ console.log('remove'); })
-      .add('Remove "Add item"', function(){
-        menu.remove('add-item');
-        menu.remove('Remove "Add item"');
-      });*/
-
-      menu.on('select', function(item){
-        console.log('selected: ', item);
-      });
+        menu.moveTo(offset(menuBtn).left, offset(menuBtn).top + menuBtn.offsetHeight);
+        menu.hide();
+        document.body.appendChild(menu.el);
         
-      menu.on('hover', function (item) {
-         console.log('hover "%s"', item); 
-      });
-
-      menu.on('Add item', function(){
-        console.log('added an item');
-      });
-
-      onclick = function(e){
-        e.preventDefault();
-        menu.moveTo(e.pageX, e.pageY);
-        menu.show();
-      };
-        
-      menu.hide();
-      document.body.appendChild(menu.el);
     </script>
   </body>
 </html>
