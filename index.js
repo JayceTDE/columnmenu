@@ -90,7 +90,7 @@ Menu.prototype.add = function (obj) {
     
     self.el.appendChild(el);
     
-    if (obj.children) {
+    if (obj.children && obj.children.length) {
         sub = new Menu();
         sub.data(obj.children);
         sub._parent = self;
