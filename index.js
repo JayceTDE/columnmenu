@@ -86,7 +86,7 @@ Menu.prototype.add = function (obj) {
     ;
     
     el.innerHTML = '<a href="#">' + obj.name + '</a>';
-    el.className = 'menu-item';
+    el.className = 'menu-item' + (obj.className ? ' ' + obj.className : '');
     
     self.el.appendChild(el);
     

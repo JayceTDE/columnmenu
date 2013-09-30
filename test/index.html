@@ -4,6 +4,11 @@
     <title>Menu</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="../build/build.css" />
+    <style>
+        .separated {
+            border-bottom: 1px solid #999;
+        }
+    </style>
   </head>
   <body>
     <button type="button">Menu</button>
@@ -19,6 +24,10 @@
         menu = Menu();
         
         var tree = [
+            { name: 'Create Hobby'
+            , value: '#create'
+            , className: 'separated'
+            },
             { name: 'Cooking' 
             , value: '#cooking'
             , children: [
