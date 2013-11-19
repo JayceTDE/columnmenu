@@ -43,10 +43,10 @@ function Menu() {
     self.items = {};
     self.el = document.createElement('ul');
     self.el.className = 'menu';
-    mouseInOut.bind(self.el, 'mouseleave', function () {
+    /*mouseInOut.bind(self.el, 'mouseleave', function () {
         clearTimeout(self._hoverTimer);
     });
-    events.bind(document.documentElement, 'click', self.hide.bind(self));
+    events.bind(document.documentElement, 'click', self.hide.bind(self));*/
     //this.on('show', this.bindKeyboardEvents.bind(this));
     //this.on('hide', this.unbindKeyboardEvents.bind(this));
 }
@@ -94,8 +94,11 @@ Menu.prototype.add = function (obj) {
         sub = new Menu();
         sub.data(obj.children);
         sub._parent = self;
+        sub._parentListItemEl = el;
         sub.hide();
-        document.body.appendChild(sub.el);
+        self.el.insertBefore(sub.el, el.nextElementSibling);
+        //el.appendChild(sub.el);
+        //document.body.appendChild(sub.el);
         el.className += ' menu-parent';
     }
     
@@ -103,12 +106,16 @@ Menu.prototype.add = function (obj) {
         prevent(e);
         e.stopPropagation();
         
-        clearTimeout(self._hoverTimer);
+        /*clearTimeout(self._hoverTimer);
         self._current && self._current.hide();
         
-        self._current = null;
+        self._current = null;*/
         
-        self.select(obj);
+        if (sub) {
+            sub.toggle();
+        } else {
+            self.select(obj); // this needs to work on parents too...
+        }
         
         /*if (sub) {
             if (obj._id) return self.select(obj);
@@ -122,7 +129,16 @@ Menu.prototype.add = function (obj) {
         }*/
     });
     
-    mouseInOut.bind(el, 'mouseenter', function (e) {
+    if (sub) {
+        events.bind(el, 'dblclick', function (e) {
+            prevent(e);
+            e.stopPropagation();
+            
+            self.select(obj);
+        });
+    }
+    
+    /*mouseInOut.bind(el, 'mouseenter', function (e) {
         clearTimeout(self._hoverTimer);
         self._hoverTimer = setTimeout(function () {
             self._current && self._current.hide();
@@ -136,7 +152,7 @@ Menu.prototype.add = function (obj) {
                 self._current = sub;
             }
         })
-    });
+    });*/
     
     return self;
 };
@@ -166,7 +182,14 @@ Menu.prototype.moveTo = function (x, y) {
 Menu.prototype.show = function () {
     this.emit('show');
     classes(this.el).remove('hidden');
+    if (this._parentListItemEl) classes(this._parentListItemEl).add('active');
+    this._showing = true;
     return this;
+};
+
+Menu.prototype.toggle = function () {
+    if (this._showing) return this.hide();
+    return this.show();
 };
 
 /**
@@ -180,6 +203,8 @@ Menu.prototype.hide = function () {
     this._current && this._current.hide();
     this.emit('hide');
     classes(this.el).add('hidden');
+    if (this._parentListItemEl) classes(this._parentListItemEl).remove('active');
+    this._showing = false;
     return this;
 };
 

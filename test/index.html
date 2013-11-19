@@ -73,10 +73,10 @@
         menuBtn.onclick = function (e){
             e.stopPropagation();
             e.preventDefault();
-            menu.show();
+            menu.toggle();
         };
         
-        menu.moveTo(offset(menuBtn).left, offset(menuBtn).top + menuBtn.offsetHeight);
+        
         menu.hide();
         document.body.appendChild(menu.el);
         
