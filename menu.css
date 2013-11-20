@@ -2,22 +2,26 @@
     margin: 1px 0 1px 3px;
     padding: 0;
     background: white;
+}
+
+.menu .child-menu {
     border-left: 3px solid #333;
 }
 
 .menu li {
+    position: relative;
     list-style: none;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    margin: 1px 0;
 }
 
 .menu li a {
     display: block;
     padding: 5px 30px 5px 12px;
     text-decoration: none;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
     color: #2e2e2e;
     outline: none;
-    margin: 1px 0;
 }
 
 .menu li a:hover, .menu li.selected a {
@@ -28,20 +32,33 @@
     position: relative;
 }
 
-.menu .menu-parent:after {
-    content:'';
+.menu .sub-btn {
     position: absolute;
-    right: 5px;
-    top: 11px;
-    width: 0;
-    height: 0;
-    border-top: 5px solid #333;
-    border-right: 5px solid transparent;
-    border-left: 5px solid transparent;
+    top: 0;
+    right: 0;
+    height: 100%;
+    padding: 0 8px;
+    margin-left: 3px;
+    border-left: 1px solid #eee;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ie-user-select: none;
+    -o-user-select: none;
 }
 
-.menu .menu-parent.active:after {
-    border-top: 5px solid transparent;
+.arrow {
+    display: inline-block;
+    vertical-align: middle;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #333;
+    margin-top: 11px;
+}
+
+.menu .menu-parent.active > .sub-btn > .arrow {
+    border-top: none;
     border-bottom: 5px solid #333;
 }
 

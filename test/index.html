@@ -11,7 +11,8 @@
     </style>
   </head>
   <body>
-    <button type="button">Menu</button>
+      
+      
     <script src="../build/build.js"></script>
     <script>
     
@@ -70,14 +71,6 @@
             console.log('selected: ', item);
         });
         
-        menuBtn.onclick = function (e){
-            e.stopPropagation();
-            e.preventDefault();
-            menu.toggle();
-        };
-        
-        
-        menu.hide();
         document.body.appendChild(menu.el);
         
     </script>

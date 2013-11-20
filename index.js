@@ -3,13 +3,16 @@
  */
 
 var Emitter = require('emitter')
-  , query = require('query')
   , classes = require('classes')
   , events = require('event')
-  , mouseInOut = require('mouse-inout')
   , prevent = require('prevent')
   , offset = require('offset')
+
+  , btnTemplate = document.createElement('span')
 ;
+
+btnTemplate.className = 'sub-btn';
+btnTemplate.innerHTML = '<span class="arrow"></span>';
 
 //Events
 //classes
@@ -37,25 +40,17 @@ module.exports = Menu;
 
 function Menu() {
     var self = this;
-    if (!(self instanceof Menu)) return new Menu;
+    if (!(self instanceof Menu)) return new Menu();
     Emitter.call(self);
-    self._current = null;
-    self.items = {};
     self.el = document.createElement('ul');
-    self.el.className = 'menu';
-    /*mouseInOut.bind(self.el, 'mouseleave', function () {
-        clearTimeout(self._hoverTimer);
-    });
-    events.bind(document.documentElement, 'click', self.hide.bind(self));*/
-    //this.on('show', this.bindKeyboardEvents.bind(this));
-    //this.on('hide', this.unbindKeyboardEvents.bind(this));
+    self.elClasses = classes(self.el).add('menu');
 }
 
 /**
  * Inherit from `Emitter.prototype`.
  */
 
-Menu.prototype = new Emitter;
+Menu.prototype = new Emitter();
 
 /**
  * Add menu item with the given `text` and optional callback `fn`.
@@ -83,6 +78,7 @@ Menu.prototype.add = function (obj) {
       , el = document.createElement('li')
       , sub
       , o
+      , subBtn
     ;
     
     el.innerHTML = '<a href="#">' + obj.name + '</a>';
@@ -91,85 +87,45 @@ Menu.prototype.add = function (obj) {
     self.el.appendChild(el);
     
     if (obj.children && obj.children.length) {
+        
         sub = new Menu();
+        
+        sub.elClasses.add('child-menu');
+        
         sub.data(obj.children);
         sub._parent = self;
-        sub._parentListItemEl = el;
+        sub._parentArrowClasses = classes(el);
         sub.hide();
-        self.el.insertBefore(sub.el, el.nextElementSibling);
-        //el.appendChild(sub.el);
-        //document.body.appendChild(sub.el);
+        
+        subBtn = btnTemplate.cloneNode(true);
+        
+        events.bind(subBtn, 'click', function (e) {
+            prevent(e);
+            e.stopPropagation();
+            
+            sub.toggle();
+        });
+        
+        self.el.insertBefore(sub.el, nextElementSibling(el));
+        el.appendChild(subBtn);
+        
         el.className += ' menu-parent';
+        
     }
     
-    events.bind(el, 'click', function (e) {
-        prevent(e);
-        e.stopPropagation();
-        
-        /*clearTimeout(self._hoverTimer);
-        self._current && self._current.hide();
-        
-        self._current = null;*/
-        
-        if (sub) {
-            sub.toggle();
-        } else {
-            self.select(obj); // this needs to work on parents too...
-        }
-        
-        /*if (sub) {
-            if (obj._id) return self.select(obj);
-            o = offset(el);
-            sub.moveTo(o.left + el.offsetWidth, o.top - 1);
-            
-            sub.show();
-            self._current = sub;
-        } else {
-            self.select(obj);
-        }*/
-    });
+    if (!obj.noClick) {
     
-    if (sub) {
-        events.bind(el, 'dblclick', function (e) {
+        events.bind(el, 'click', function (e) {
             prevent(e);
             e.stopPropagation();
             
             self.select(obj);
+            
         });
+        
     }
     
-    /*mouseInOut.bind(el, 'mouseenter', function (e) {
-        clearTimeout(self._hoverTimer);
-        self._hoverTimer = setTimeout(function () {
-            self._current && self._current.hide();
-            self._current = null;
-            
-            if (sub) {
-                o = offset(el);
-                sub.moveTo(o.left + el.offsetWidth, o.top - 1);
-                
-                sub.show();
-                self._current = sub;
-            }
-        })
-    });*/
-    
     return self;
-};
-
-/**
- * Move context menu to `(x, y)`.
- *
- * @param {Number} x
- * @param {Number} y
- * @return {Menu}
- * @api public
- */
-
-Menu.prototype.moveTo = function (x, y) {
-    this.el.style.top = y + 'px';
-    this.el.style.left = x + 'px';
-    return this;
 };
 
 /**
@@ -182,14 +138,9 @@ Menu.prototype.moveTo = function (x, y) {
 Menu.prototype.show = function () {
     this.emit('show');
     classes(this.el).remove('hidden');
-    if (this._parentListItemEl) classes(this._parentListItemEl).add('active');
+    if (this._parentArrowClasses) this._parentArrowClasses.add('active');
     this._showing = true;
     return this;
-};
-
-Menu.prototype.toggle = function () {
-    if (this._showing) return this.hide();
-    return this.show();
 };
 
 /**
@@ -203,12 +154,23 @@ Menu.prototype.hide = function () {
     this._current && this._current.hide();
     this.emit('hide');
     classes(this.el).add('hidden');
-    if (this._parentListItemEl) classes(this._parentListItemEl).remove('active');
+    if (this._parentArrowClasses) this._parentArrowClasses.remove('active');
     this._showing = false;
     return this;
 };
 
+Menu.prototype.toggle = function () {
+    if (this._showing) return this.hide();
+    return this.show();
+};
+
 Menu.prototype.select = function (item) {
-    this.hide();
     return this._parent ? this._parent.select(item) : this.emit('select', item);
 };
+
+function nextElementSibling(el) {
+    do {
+        el = el.nextSibling;
+    } while ( el && el.nodeType !== 1 );
+    return el;
+}
