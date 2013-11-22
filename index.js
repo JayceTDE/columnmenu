@@ -1,12 +1,7 @@
-/**
- * Module dependencies.
- */
-
 var Emitter = require('emitter')
   , classes = require('classes')
   , events = require('event')
   , prevent = require('prevent')
-  , offset = require('offset')
 
   , btnTemplate = document.createElement('span')
 ;
@@ -14,29 +9,8 @@ var Emitter = require('emitter')
 btnTemplate.className = 'sub-btn';
 btnTemplate.innerHTML = '<span class="arrow"></span>';
 
-//Events
-//classes
-//mouseinout
-
-/**
- * Expose `Menu`.
- */
 
 module.exports = Menu;
-
-/**
- * Initialize a new `Menu`.
- *
- * Emits:
- *
- *   - "show" when shown
- *   - "hide" when hidden
- *   - "remove" with the item name when an item is removed
- *   - "select" (item) when an item is selected
- *   - * menu item events are emitted when clicked
- *
- * @api public
- */
 
 function Menu() {
     var self = this;
@@ -46,25 +20,7 @@ function Menu() {
     self.elClasses = classes(self.el).add('menu');
 }
 
-/**
- * Inherit from `Emitter.prototype`.
- */
-
 Menu.prototype = new Emitter();
-
-/**
- * Add menu item with the given `text` and optional callback `fn`.
- *
- * When the item is clicked `fn()` will be invoked
- * and the `Menu` is immediately closed. When clicked
- * an event of the name `text` is emitted regardless of
- * the callback function being present.
- *
- * @param {String} text
- * @param {Function} fn
- * @return {Menu}
- * @api public
- */
 
 Menu.prototype.data = function (arr) {
     for (var i = 0, l = arr.length; i < l; i += 1) {
@@ -128,13 +84,6 @@ Menu.prototype.add = function (obj) {
     return self;
 };
 
-/**
- * Show the menu.
- *
- * @return {Menu}
- * @api public
- */
-
 Menu.prototype.show = function () {
     this.emit('show');
     classes(this.el).remove('hidden');
@@ -142,13 +91,6 @@ Menu.prototype.show = function () {
     this._showing = true;
     return this;
 };
-
-/**
- * Hide the menu.
- *
- * @return {Menu}
- * @api public
- */
 
 Menu.prototype.hide = function () {
     this._current && this._current.hide();

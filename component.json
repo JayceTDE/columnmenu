@@ -1,23 +1,22 @@
 {
-  "name": "menu",
-  "description": "Menu component",
-  "version": "0.1.1",
-  "keywords": [
+    "name": "column-menu",
+    "description": "Menu component",
+    "version": "0.0.1",
+    "keywords": [
     "menu",
     "ui"
-  ],
-  "dependencies": {
-    "component/emitter": "*",
-    "component/classes": "*",
-    "component/event": "*",
-    "yields/prevent": "*",
-    "anthonyshort/offset": "*"
-  },
-  "styles": [
+    ],
+    "dependencies": {
+        "component/emitter": "*",
+        "component/classes": "*",
+        "component/event": "*",
+        "yields/prevent": "*"
+    },
+    "styles": [
     "menu.css"
-  ],
-  "scripts": [
+    ],
+    "scripts": [
     "index.js"
-  ],
-  "license": "MIT"
+    ],
+    "license": "MIT"
 }
